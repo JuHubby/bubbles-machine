@@ -1,0 +1,126 @@
+<html>
+    <head>
+        <title>Dynamically inject content into a web page - Pacmen Exercise </title>
+        <style>
+        body {
+            background-color: rgb(207, 237, 244);
+            background-image: linear-gradient(to right, rgba(255,0,0,0), rgb(181, 197, 230));        }
+        .demo-ball {
+            z-index:1;
+            position:absolute;
+            left:0px;
+            top:0px;
+            width:100px;
+            height:100px;
+            border-radius:50%;
+            border: 0px solid #f5f2ec;
+            box-shadow: 10px 10px 5px rgb(195, 193, 193);
+            /* background:#f0f6f4; */
+        }
+       
+        </style>
+    </head> 
+
+<SCRIPT>
+    var pos = 0;
+    const pacArray = [
+        ['PacMan1.png', 'PacMan2.png'],
+        ['PacMan3.png', 'PacMan4.png']
+    ];
+
+    const pacMen = []; // This array holds all the pacmen
+
+    function setToRandom(scale) {
+        return {
+            x: Math.random() * scale,
+            y: Math.random() * scale
+        }
+    }
+
+    function setRandomColor() {
+        // Math.pow is slow, use constant instead.
+        const colors = ["red", "green", "blue", "yellow", "violet", "gray", "pink", "orange", "lightblue"];
+        return colors[Math.floor(Math.random() * 5)];
+    }
+    // Factory to make a PacMan at a random position with random velocity
+    function makePac() {
+        // returns an object with random values scaled {x: 33, y: 21}
+        //this part is shadow DOM
+        let velocity = setToRandom(10); // {x:?, y:?}
+        let position = setToRandom(200);
+       
+        // Add image to div id = game
+        let game = document.getElementById('game');
+        let newDiv = document.createElement('div');
+        newDiv.style.position = 'absolute';
+        // newDiv.src = 'PacMan1.png';
+        newDiv.width = 100;
+        newDiv.height = 100;
+        newDiv.border = 'solid';
+        
+        // //
+        // // set position here 
+        newDiv.style.left = position.x;
+        newDiv.style.top = position.y;
+        // add new Child image to game
+        document.getElementById('game').appendChild(newDiv).setAttribute("class", "demo-ball");
+
+        // return details in an object
+        return {
+            position,
+            velocity,
+            newDiv
+        }
+    }
+
+    function update() {
+        //loop over pacmen array and move each one and ...
+        pacMen.forEach((item) => {
+            checkCollisions(item)
+            item.position.x += item.velocity.x;
+            item.position.y += item.velocity.y;
+        // and move image in DOM
+            item.newDiv.style.left = item.position.x;
+            item.newDiv.style.top = item.position.y;
+        })
+        setTimeout(update, 20);
+
+    }
+
+    function checkCollisions(item,direction) {
+        //
+        // detect collision with all walls and make pacman bounce
+        if(item.position.x + item.velocity.x + item.newDiv.width > window.innerWidth ||
+        item.position.x + item.velocity.x < 0) item.velocity.x = -item.velocity.x;
+        if(item.position.y + item.velocity.y + item.newDiv.height > window.innerHeight ||
+        item.position.y + item.velocity.y < 0) item.velocity.y = -item.velocity.y;
+        //
+    }
+
+    function makeOne() {
+        pacMen.push(makePac()); // add a new PacMan
+
+    }
+</SCRIPT>
+
+<body>
+    <!-- <div id="ball1" style="
+    z-index:1;
+    position:absolute;
+    left:0px;
+    top:0px;
+    width:150px;
+    height:150px;
+    border-radius:50%;
+    border: 0px solid #F9E6B2;
+    box-shadow: 10px 10px 5px lightgray;
+    background:#FFFFEE"></div> -->
+    
+    <div id='game'>
+        <button onclick='makeOne()' width='200' height='30'>Add bubble</button>
+        <button onclick='update()' width='200' height='30'>Start floating</button>
+
+    </div>
+</body>
+
+</html>
